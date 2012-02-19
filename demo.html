@@ -2,23 +2,21 @@
 <html>
 <head>
 <meta charset=utf-8 />
-<title>JS Bin</title>
-<!--[if IE]>
-  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-<![endif]-->
+<title>particles.js demo</title>
 <style>
-  article, aside, figure, footer, header, hgroup, 
-  menu, nav, section { display: block; }
   canvas {
     background: #000;
     -webkit-transform: translateZ(0);
   }
 </style>
+  <script src="particles.js"></script>
   <script src="https://raw.github.com/gist/1579671/7f515ade253afbc860dac1f84e21998d54359d79/rAF.js"></script>
   <script src="http://dat-gui.googlecode.com/git/build/dat.gui.min.js"></script>
 </head>
 <body>
+
   <canvas id="mycanvas" width="800" height="600"></canvas>
+
   <script>
     var canvas = mycanvas,
     ctx = canvas.getContext("2d");
