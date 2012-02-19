@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+<title>JS Bin</title>
+<!--[if IE]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+<style>
+  article, aside, figure, footer, header, hgroup, 
+  menu, nav, section { display: block; }
+  canvas {
+    background: #000;
+    -webkit-transform: translateZ(0);
+  }
+</style>
+  <script src="https://raw.github.com/gist/1579671/7f515ade253afbc860dac1f84e21998d54359d79/rAF.js"></script>
+  <script src="http://dat-gui.googlecode.com/git/build/dat.gui.min.js"></script>
+</head>
+<body>
+  <canvas id="mycanvas" width="800" height="600"></canvas>
+  <script>
+    var canvas = mycanvas,
+    ctx = canvas.getContext("2d");
+
+    var ps = new ParticleSystem(canvas);
+    (function draw() {
+      ps.spawn(30);
+      ps.drawNextFrame.call(ps);
+      requestAnimationFrame(draw);
+    })();
+
+    gui = new dat.GUI();
+    gui.add(this.ps, 'UNIVERSE_GRAVITY', -1.0, 1.0);
+    gui.add(this.ps, 'UNIVERSE_FRICTION', 0.0, 1.0);
+    gui.add(this.ps, 'PARTICLE_MASS_MIN', 0, 100);
+    gui.add(this.ps, 'PARTICLE_MASS_MAX', 10, 500);
+    gui.add(this.ps, 'PARTICLE_BURN_RATE', 0.0, 1.0);
+    gui.add(this.ps, 'PARTICLE_SHARPNESS', 0.0, 1.0);
+  </script>
+</body>
+
