@@ -24,7 +24,7 @@
     var ps = new ParticleSystem(canvas);
     (function draw() {
       ps.spawn(30);
-      ps.drawNextFrame.call(ps);
+      ps.drawNextFrame();
       requestAnimationFrame(draw);
     })();
 
