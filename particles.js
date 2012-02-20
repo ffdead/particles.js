@@ -1,55 +1,26 @@
-Particle2D = function (x, y) {
-    this.x = x;
-    this.y = y;
-    this.velocityX = 0;
-    this.velocityY = 0;
-    this.mass = 0;
-    this.alpha = 0;
-    this.burnRate = 0;
-    this.sharpness = 0;
-    this.color = {
-      RED: 0,
-      GREEN: 0,
-      BLUE: 0
-    };
-};
 
-Particle2D.prototype = {
-  
-  getColor: function () {
-    return 'rgba(' + this.color.RED + ',' + this.color.GREEN + ',' + this.color.BLUE + ',' + this.alpha + ')';
-  },
-  
-  draw: function (context) {
-    var size = this.mass;
-    var halfSize = size >> 1;
-    var x = ~~this.x;
-    var y = ~~this.y;
-    var sizeSmall = halfSize * this.sharpness;
-                    
-    var radgrad = context.createRadialGradient( x + halfSize, y + halfSize, sizeSmall, x + halfSize, y + halfSize, halfSize);  
-    radgrad.addColorStop( 0, this.getColor() );   
-    radgrad.addColorStop( 1, 'rgba(50,0,30,0)' );
-    context.fillStyle = radgrad;
-    context.fillRect( x, y, size, size );
-  }
-
-};
-
-
-
+/**
+ * @class Main class for the particle system
+ *
+ * @author David Lindkvist
+ * @param {Object} canvas The HTML5 Canvas on which to render the particles
+ */
 ParticleSystem = function (canvas) {
   
-  this.UNIVERSE_GRAVITY        = 0.0005;
-  this.UNIVERSE_FRICTION       = 0.02; //0-1
-  this.PARTICLE_MASS_MIN       = 30;
-  this.PARTICLE_MASS_MAX       = 60;
-  this.PARTICLE_BURN_RATE      = 0.97; 
-  this.PARTICLE_SHARPNESS      = 0.2;
-  this.PARTICLE_VELOCITY_X_MIN = -0.055;
-  this.PARTICLE_VELOCITY_X_MAX = 0.055;
-  this.PARTICLE_VELOCITY_Y_MIN = -0.18;
-  this.PARTICLE_VELOCITY_Y_MAX = 0;
+  // Universe/particle parameters
+  this.UNIVERSE_GRAVITY        = 0.5;     // 0-1
+  this.UNIVERSE_FRICTION       = 0.02;    // 0-1
+  this.PARTICLE_MASS_MIN       = 30;      // pixels
+  this.PARTICLE_MASS_MAX       = 60;      // pixels
+  this.PARTICLE_BURN_RATE      = 0.97;    // 0-1
+  this.PARTICLE_SHARPNESS      = 0.2;     // 0-1
+  this.PARTICLE_VELOCITY_X_MIN = -55;     // pixels per second
+  this.PARTICLE_VELOCITY_X_MAX = 55;      // pixels per second
+  this.PARTICLE_VELOCITY_Y_MIN = -180;    // pixels per second
+  this.PARTICLE_VELOCITY_Y_MAX = 0;       // pixels per second
+
+  // frames per second the animation should run at
+  this.FPS = 60; // corrects over/underruns by speeding up or slowing down movement
 
   // default particle color
   this.SPAWN_COLOR = {
@@ -58,19 +29,16 @@ ParticleSystem = function (canvas) {
     BLUE: 0
   };
   
-  // default spawn position
+  // default particle spawn position
   this.x = canvas.width >> 1;
   this.y = canvas.height * 0.8;
-    
+  
   this.particles = [];
-  this.autoSpawn = false;
-
   this.canvas = canvas;
   this.ctx = canvas.getContext("2d");
+  this.ctx.globalCompositeOperation = 'lighter'; // add glow
 
-  // add glow
-  this.ctx.globalCompositeOperation = 'lighter';
-
+  // automatically clear dirty region before next frame
   this.autoClear = true;
   this.dirtyRegion = {xMin: 0, xMax: 0, yMin: 0, yMax:0};
   
@@ -78,7 +46,9 @@ ParticleSystem = function (canvas) {
 };
 
 
-
+/**
+ * Update and draw the next frame of all particles in the particle system.
+ */
 ParticleSystem.prototype.drawNextFrame = function() {
   
   // calculate time since last frame was drawn
@@ -86,8 +56,8 @@ ParticleSystem.prototype.drawNextFrame = function() {
   var timeSinceLastFrame = this.lastFrameTime > 0 ? time - this.lastFrameTime : 0;
   this.lastFrameTime = time;
   
-  // calculate frame delay multiple
-  var m = (timeSinceLastFrame === 0) ? 1 : (timeSinceLastFrame / (1000/60));
+  // calculate frame delay multiple - correct fps underrun/overrun
+  var m = (timeSinceLastFrame === 0) ? 1 : (timeSinceLastFrame / (1000/this.FPS));
   
   if (this.autoClear) {
     // clear dirty region
@@ -111,8 +81,8 @@ ParticleSystem.prototype.drawNextFrame = function() {
       var p = this.particles[i];
       
       // apply velocities and forces
-      p.x += p.velocityX * p.mass * m;
-      p.y += p.velocityY * p.mass * m;
+      p.x += p.velocityX * p.mass * m / 1000;
+      p.y += p.velocityY * p.mass * m / 1000;
       p.velocityX *= Math.pow(1-this.UNIVERSE_FRICTION, m);
       p.velocityY *= Math.pow(1-this.UNIVERSE_FRICTION, m);
       p.velocityY += this.UNIVERSE_GRAVITY * m;
@@ -139,7 +109,7 @@ ParticleSystem.prototype.drawNextFrame = function() {
 
 /**
  * Spawn new particles
- * @param n {int} number of new particles to spawn
+ * @param {Number} n Number of new particles to spawn
  */
 ParticleSystem.prototype.spawn = function(n) {
 
@@ -162,3 +132,57 @@ ParticleSystem.prototype.spawn = function(n) {
 
 };
 
+
+
+/**
+ * @class A 2D particle
+ *
+ * @author David Lindkvist
+ * @param {Number} x Start x-coordinate of this particle
+ * @param {Number} y Start y-coordinate of this particle
+ */
+Particle2D = function (x, y) {
+    this.x = x;
+    this.y = y;
+    this.velocityX = 0;
+    this.velocityY = 0;
+    this.mass = 0;
+    this.alpha = 0;
+    this.burnRate = 0;
+    this.sharpness = 0;
+    this.color = {
+      RED: 0,
+      GREEN: 0,
+      BLUE: 0
+    };
+};
+
+Particle2D.prototype = {
+  
+  /**
+   * Returns the RGBA color of this particle 
+   */
+  getColor: function () {
+    return 'rgba(' + this.color.RED + ',' + this.color.GREEN + ',' + this.color.BLUE + ',' + this.alpha + ')';
+  },
+  
+  /**
+   * Draw the current particle state on a Canvas context.
+   *
+   * @param {Object} context Canvas 2D drawing context to draw particle on
+   */
+  draw: function (context) {
+    var size = this.mass;
+    var halfSize = size >> 1;
+    var x = ~~this.x;
+    var y = ~~this.y;
+    var sizeSmall = halfSize * this.sharpness;
+                    
+    var radgrad = context.createRadialGradient( x + halfSize, y + halfSize, sizeSmall, x + halfSize, y + halfSize, halfSize);  
+    radgrad.addColorStop( 0, this.getColor() );   
+    radgrad.addColorStop( 1, 'rgba(50,0,30,0)' );
+    context.fillStyle = radgrad;
+    context.fillRect( x, y, size, size );
+  }
+
+};

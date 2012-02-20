@@ -14,26 +14,35 @@
 </head>
 <body>
 
-  <canvas id="mycanvas" width="800" height="600"></canvas>
+  <canvas id="myCanvas" width="800" height="600"></canvas>
 
   <script>
-    var canvas = mycanvas,
-    ctx = canvas.getContext("2d");
+    var canvas  = document.getElementById('myCanvas'),
+        ctx     = canvas.getContext("2d");
 
+    // Create a default particle system
     var ps = new ParticleSystem(canvas);
+
+    // run update loop - spawn 30 particles on each frame
     (function draw() {
+      requestAnimationFrame(draw);
       ps.spawn(30);
       ps.drawNextFrame();
-      requestAnimationFrame(draw);
     })();
 
     gui = new dat.GUI();
-    gui.add(this.ps, 'UNIVERSE_GRAVITY', -1.0, 1.0);
+    gui.add(this.ps, 'x', 0, canvas.width);
+    gui.add(this.ps, 'y', 0, canvas.height);
+    gui.add(this.ps, 'UNIVERSE_GRAVITY', -10.0, 10.0);
     gui.add(this.ps, 'UNIVERSE_FRICTION', 0.0, 1.0);
     gui.add(this.ps, 'PARTICLE_MASS_MIN', 0, 100);
     gui.add(this.ps, 'PARTICLE_MASS_MAX', 10, 500);
     gui.add(this.ps, 'PARTICLE_BURN_RATE', 0.0, 1.0);
     gui.add(this.ps, 'PARTICLE_SHARPNESS', 0.0, 1.0);
+    gui.add(this.ps, 'PARTICLE_VELOCITY_X_MIN', -500.0, 500.0);
+    gui.add(this.ps, 'PARTICLE_VELOCITY_X_MAX', -500.0, 500.0);
+    gui.add(this.ps, 'PARTICLE_VELOCITY_Y_MIN', -500.0, 500.0);
+    gui.add(this.ps, 'PARTICLE_VELOCITY_Y_MAX', -500.0, 500.0);
   </script>
 </body>
 
